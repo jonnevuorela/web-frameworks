@@ -34,8 +34,8 @@ namespace API.Controllers
                     return Ok(users);
 
                 }
-                
-                
+
+
             }
             catch (SqliteException ex)
             {
@@ -103,7 +103,7 @@ namespace API.Controllers
             {
                 return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
-            
+
         }
 
 
@@ -119,7 +119,7 @@ namespace API.Controllers
 
                     if (user == null)
                     {
-                        return Problem($"Error updating user", statusCode: StatusCodes.Status500InternalServerError);
+                        return NotFound();
                     }
 
                     return user;
@@ -163,7 +163,7 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
-            } 
+            }
         }
     }
 }
