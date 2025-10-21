@@ -4,7 +4,6 @@ namespace API.Models
 {
     public class AppProduct
     {
-
         public long? Id { get; set; } = null;
 
         public required string Name { get; set; }
@@ -68,7 +67,7 @@ namespace API.Models
             return product;
         }
 
-        private async Task<bool> Add()
+        public static async Task<bool> Add(string name)
         {
             using var connection = new SqliteConnection("Data source=tuntiharjoitus1.db");
             connection.Open();
@@ -78,7 +77,7 @@ namespace API.Models
                 INSERT INTO products(name)
                 VALUES(@Name);
                 SELECT last_insert_rowid();";
-            insertCommand.Parameters.AddWithValue("@Name", Name);
+            insertCommand.Parameters.AddWithValue("@Name", name);
 
             var newId = await insertCommand.ExecuteScalarAsync();
             if (newId == null)
@@ -86,12 +85,10 @@ namespace API.Models
                 return false;
             }
 
-            Id = (long)newId;
-
             return true;
         }
 
-        private async Task<bool> Update()
+        public static async Task<bool> Update(string name, long id)
         {
             using var connection = new SqliteConnection("Data source=tuntiharjoitus1.db");
             connection.Open();
@@ -99,33 +96,18 @@ namespace API.Models
             var updateCommand = connection.CreateCommand();
             updateCommand.CommandText = @"
                 UPDATE products SET
-                    name = @newName,
+                    name = @newName
                 WHERE id = @id;";
 
-            updateCommand.Parameters.AddWithValue("@newName", Name);
-            updateCommand.Parameters.AddWithValue("@id", Id);
+            updateCommand.Parameters.AddWithValue("@newName", name);
+            updateCommand.Parameters.AddWithValue("@id", id);
 
             int rowsAffected = await updateCommand.ExecuteNonQueryAsync();
 
             return rowsAffected == 1;
         }
 
-        public async Task<bool> Save()
-        {
-            bool success;
-            if (Id == null)
-            {
-                success = await Add();
-            }
-            else
-            {
-                success = await Update();
-            }
-
-            return success;
-        }
-
-        public async Task<bool> Remove()
+        public static async Task<bool> Remove(long id)
         {
             using var connection = new SqliteConnection("Data source=tuntiharjoitus1.db");
 
@@ -133,7 +115,7 @@ namespace API.Models
 
             var command = connection.CreateCommand();
             command.CommandText = "DELETE FROM products WHERE id = @id;";
-            command.Parameters.AddWithValue("@id", Id);
+            command.Parameters.AddWithValue("@id", id);
 
             int rowsAffected = await command.ExecuteNonQueryAsync();
 
