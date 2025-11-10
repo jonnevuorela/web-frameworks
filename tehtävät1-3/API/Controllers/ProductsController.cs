@@ -1,103 +1,128 @@
 using API.Models;
+using API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ProductsController : ControllerBase
+namespace API.Controllers
 {
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<AppProduct>>> GetAll()
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProductsController : ControllerBase
     {
-        try
+        [HttpGet(Name = "GetAllProducts")]
+        public async Task<ActionResult<IEnumerable<AppProduct>>> GetAllProducts()
         {
-            var products = await AppProduct.GetAll();
-            return Ok(products);
-        }
-        catch (Exception e)
-        {
-            return NotFound(e.Message);
-        }
-    }
-
-    [HttpGet("{id}", Name = "GetProductById")]
-    public async Task<ActionResult<AppProduct>> GetProductById(long id)
-    {
-        try
-        {
-            var product = await AppProduct.GetById(id);
-            if (product == null)
+            try
             {
-                return NotFound("Product not found");
+                using (var repo = new ProductsSQLiteRepository())
+                {
+                    var products = await repo.GetAll();
+                    return Ok(products);
+                }
             }
-            return Ok(product);
-        }
-        catch (Exception ex)
-        {
-            return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
-        }
-    }
-
-    [HttpPost(Name = "AddProduct")]
-    public async Task<ActionResult<AppProduct>> AddNewProduct(string name)
-    {
-        try
-        {
-            var success = await AppProduct.Add(name);
-            if (!success)
+            catch (Exception e)
             {
-                return Problem($"error creating product", statusCode: StatusCodes.Status500InternalServerError);
+                return NotFound(e.Message);
             }
-
-            return Ok(success);
         }
-        catch (Exception ex)
+
+        [HttpGet("{id}", Name = "GetProductById")]
+        public async Task<ActionResult<AppProduct>> GetProductById(long id)
         {
-            return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-        }
-    }
-
-
-    [HttpPatch("{id}", Name = "UpdateProductById")]
-    public async Task<ActionResult<AppProduct>> UpdateProduct(long id, string name)
-    {
-        try
-        {
-
-            var success = await AppProduct.Update(name, id);
-            if (!success)
+            try
             {
-                return NotFound();
+                using (var repo = new ProductsSQLiteRepository())
+                {
+                    var product = await repo.GetById(id);
+                    if (product == null)
+                    {
+                        return NotFound("Product not found");
+                    }
+                    return Ok(product);
+                }
             }
-
-            return Ok(success);
-
-        }
-        catch (Exception ex)
-        {
-            return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
-        }
-    }
-
-    [HttpDelete("{id}", Name = "RemoveProductById")]
-    public async Task<ActionResult> RemoveProduct(long id)
-    {
-        try
-        {
-            bool removed = await AppProduct.Remove(id);
-
-            if (removed)
+            catch (Exception ex)
             {
-                return NoContent();
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
             }
-
-            return NotFound("product not found");
         }
-        catch (Exception ex)
+
+        [HttpPost(Name = "AddProduct")]
+        public async Task<ActionResult<AppProduct>> AddNewProduct(string name)
         {
-            return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
+            try
+            {
+                using (var repo = new ProductsSQLiteRepository())
+                {
+                    var product = await repo.Save(name);
+                    if (product == null)
+                    {
+                        return Problem(
+                            $"error creating product",
+                            statusCode: StatusCodes.Status500InternalServerError
+                        );
+                    }
+
+                    return Ok(product);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPatch("{id}", Name = "UpdateProductById")]
+        public async Task<ActionResult<AppProduct>> UpdateProduct(long id, string name)
+        {
+            try
+            {
+                using (var repo = new ProductsSQLiteRepository())
+                {
+                    var product = await repo.Save(name, id);
+                    if (product == null)
+                    {
+                        return Problem(
+                            $"Error updating user",
+                            statusCode: StatusCodes.Status500InternalServerError
+                        );
+                    }
+                    return product;
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
+            }
+        }
+
+        [HttpDelete("{id}", Name = "RemoveProductById")]
+        public async Task<ActionResult> RemoveProduct(long id)
+        {
+            try
+            {
+                using (var repo = new ProductsSQLiteRepository())
+                {
+                    bool removed = await repo.Remove(id);
+                    if (removed)
+                    {
+                        return NoContent();
+                    }
+                    return NotFound("product not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
+            }
         }
     }
 }
-
