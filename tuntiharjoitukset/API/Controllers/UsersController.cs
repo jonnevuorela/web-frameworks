@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Dtos;
 using API.Factories;
+using API.Interfaces;
 using API.Models;
 using API.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -14,10 +15,8 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController(IUsersRepository repository) : ControllerBase
     {
-
-
         [HttpGet(Name = "GetAllUsers")]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetAllUsers()
         {
@@ -28,27 +27,31 @@ namespace API.Controllers
                 // eli tietokantayhteys suljetaan ja siivotaan pois
 
                 // huomaa, että tässä käytetään nyt Factory Patternia.
-                using (var repo = UsersRepositoryFactory.Create())
+                using (repository = UsersRepositoryFactory.Create())
                 {
-                    var users = await repo.GetAll();
+                    var users = await repository.GetAll();
                     return Ok(users);
-
                 }
-
-
             }
             catch (SqliteException ex)
             {
                 if (ex.SqliteErrorCode == 19)
                 {
-                    return Conflict("The provided username already exists. Please choose a different one.");
+                    return Conflict(
+                        "The provided username already exists. Please choose a different one."
+                    );
                 }
-                return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
-
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
             }
             catch (Exception ex)
             {
-                return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
             }
         }
 
@@ -57,10 +60,9 @@ namespace API.Controllers
         {
             try
             {
-
-                using (var repo = UsersRepositoryFactory.Create())
+                using (repository = UsersRepositoryFactory.Create())
                 {
-                    var user = await repo.GetById(id);
+                    var user = await repository.GetById(id);
                     if (user == null)
                     {
                         return NotFound("User not found");
@@ -72,14 +74,21 @@ namespace API.Controllers
             {
                 if (ex.SqliteErrorCode == 19)
                 {
-                    return Conflict("The provided username already exists. Please choose a different one.");
+                    return Conflict(
+                        "The provided username already exists. Please choose a different one."
+                    );
                 }
-                return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
-
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
             }
             catch (Exception ex)
             {
-                return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
             }
         }
 
@@ -88,12 +97,19 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = UsersRepositoryFactory.Create())
+                using (repository = UsersRepositoryFactory.Create())
                 {
-                    var user = await repo.Save(request.FirstName, request.LastName, request.Username);
+                    var user = await repository.Save(
+                        request.FirstName,
+                        request.LastName,
+                        request.Username
+                    );
                     if (user == null)
                     {
-                        return Problem($"error creating user", statusCode: StatusCodes.Status500InternalServerError);
+                        return Problem(
+                            $"error creating user",
+                            statusCode: StatusCodes.Status500InternalServerError
+                        );
                     }
 
                     return Ok(user);
@@ -103,19 +119,21 @@ namespace API.Controllers
             {
                 return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
-
         }
-
 
         [HttpPatch("{id}", Name = "UpdateUserById")]
         public async Task<ActionResult<AppUser>> UpdateUser(long id, AddUserRequest request)
         {
             try
             {
-
-                using (var repo = UsersRepositoryFactory.Create())
+                using (var repository = UsersRepositoryFactory.Create())
                 {
-                    var user = await repo.Save(request.FirstName, request.LastName, request.Username, id);
+                    var user = await repository.Save(
+                        request.FirstName,
+                        request.LastName,
+                        request.Username,
+                        id
+                    );
 
                     if (user == null)
                     {
@@ -124,20 +142,26 @@ namespace API.Controllers
 
                     return user;
                 }
-
             }
             catch (SqliteException ex)
             {
                 if (ex.SqliteErrorCode == 19)
                 {
-                    return Conflict("The provided username already exists. Please choose a different one.");
+                    return Conflict(
+                        "The provided username already exists. Please choose a different one."
+                    );
                 }
-                return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
-
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
             }
             catch (Exception ex)
             {
-                return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
             }
         }
 
@@ -146,7 +170,6 @@ namespace API.Controllers
         {
             try
             {
-
                 using (var repo = UsersRepositoryFactory.Create())
                 {
                     bool removed = await repo.Remove(id);
@@ -159,10 +182,12 @@ namespace API.Controllers
                     return NotFound("user not found");
                 }
             }
-
             catch (Exception ex)
             {
-                return Problem($"Database error: {ex.Message}", statusCode: StatusCodes.Status500InternalServerError);
+                return Problem(
+                    $"Database error: {ex.Message}",
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
             }
         }
     }

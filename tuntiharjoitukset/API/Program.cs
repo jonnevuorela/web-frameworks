@@ -1,38 +1,40 @@
+// See https://aka.ms/new-console-template for more information
 
-var builder = WebApplication.CreateBuilder(args);
+using API.Controllers;
+using API.Interfaces;
+using API.Repositories;
+using Microsoft.Data.Sqlite;
 
-
-
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-
-// nämä kolme liitännäistä tarvitaan siihen, että swagger / OpenAPI-dokumentaatio toimii
-// automaattisesti
-builder.Services.AddOpenApi();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+namespace API
 {
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public static class Program
+    {
+        public static void Main()
+        {
+            while (true)
+            {
+                Console.WriteLine("Mitä haluat tehdä? (\n0: Lopeta\n" + "1: Listaa käyttäjät\n):");
+                var choice = Console.ReadLine();
+                Console.WriteLine(choice);
+                if (choice == "0")
+                {
+                    break;
+                }
 
+                switch (choice)
+                {
+                    case "1":
 
+                        var container = new SimpleDiContainer();
+                        container.Register<IUsersRepository, UsersSQLiteRepository>();
+                        container.Register<UsersController>();
+
+                        var ctrl = container.Resolve<UsersController>();
+                        var users = ctrl.GetAllUsers();
+                        Console.WriteLine(users);
+                        break;
+                }
+            }
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
