@@ -1,3 +1,4 @@
+using API.Dtos;
 using API.Models;
 using API.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -50,13 +51,13 @@ namespace API.Controllers
         }
 
         [HttpPost(Name = "AddProduct")]
-        public async Task<ActionResult<AppProduct>> AddNewProduct(string name)
+        public async Task<ActionResult<AppProduct>> AddNewProduct(AddProductRequest request)
         {
             try
             {
                 using (var repo = new ProductsSQLiteRepository())
                 {
-                    var product = await repo.Save(name);
+                    var product = await repo.Save(request.Name);
                     if (product == null)
                     {
                         return Problem(
@@ -75,13 +76,16 @@ namespace API.Controllers
         }
 
         [HttpPatch("{id}", Name = "UpdateProductById")]
-        public async Task<ActionResult<AppProduct>> UpdateProduct(long id, string name)
+        public async Task<ActionResult<AppProduct>> UpdateProduct(
+            long id,
+            AddProductRequest request
+        )
         {
             try
             {
                 using (var repo = new ProductsSQLiteRepository())
                 {
-                    var product = await repo.Save(name, id);
+                    var product = await repo.Save(request.Name, id);
                     if (product == null)
                     {
                         return Problem(
