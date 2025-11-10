@@ -10,7 +10,7 @@ namespace API.Repositories
 
         public ProductsSQLiteRepository()
         {
-            _connection = new SqliteConnection("Data Sourece=tuntiharjoitus1db");
+            _connection = new SqliteConnection("Data Source=tuntiharjoitus1.db");
             _connection.Open();
         }
 
@@ -110,7 +110,7 @@ namespace API.Repositories
             return null;
         }
 
-        public async Task<AppProduct?> Save(string name, long? id)
+        public async Task<AppProduct?> Save(string name, long? id = null)
         {
             AppProduct? product;
             if (id == null)
