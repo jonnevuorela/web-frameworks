@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Dtos;
+using API.Factories;
 using API.Models;
 using API.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -25,7 +26,7 @@ namespace API.Controllers
                 // using-blokki varmistaa, että kun repo-instanssia ei enää tarvita
                 // kutustaan UsersSQLiteRepositoryn Dispose-metodia
                 // eli tietokantayhteys suljetaan ja siivotaan pois
-                using (var repo = new UsersSQLiteRepository())
+                using (var repo = UsersRepositoryFactory.Create())
                 {
                     var users = await repo.GetAll();
                     return Ok(users);
@@ -58,7 +59,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new UsersSQLiteRepository())
+                using (var repo = UsersRepositoryFactory.Create())
                 {
                     var user = await repo.GetById(id);
                     if (user == null)
@@ -95,7 +96,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new UsersSQLiteRepository())
+                using (var repo = UsersRepositoryFactory.Create())
                 {
                     var user = await repo.Save(
                         request.FirstName,
@@ -124,7 +125,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new UsersSQLiteRepository())
+                using (var repo = UsersRepositoryFactory.Create())
                 {
                     var user = await repo.Save(
                         request.FirstName,
@@ -171,7 +172,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new UsersSQLiteRepository())
+                using (var repo = UsersRepositoryFactory.Create())
                 {
                     bool removed = await repo.Remove(id);
 

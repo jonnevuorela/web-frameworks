@@ -1,4 +1,5 @@
 using API.Dtos;
+using API.Factories;
 using API.Models;
 using API.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new ProductsSQLiteRepository())
+                using (var repo = ProductsRepositoryFactory.Create())
                 {
                     var products = await repo.GetAll();
                     return Ok(products);
@@ -31,7 +32,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new ProductsSQLiteRepository())
+                using (var repo = ProductsRepositoryFactory.Create())
                 {
                     var product = await repo.GetById(id);
                     if (product == null)
@@ -55,7 +56,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new ProductsSQLiteRepository())
+                using (var repo = ProductsRepositoryFactory.Create())
                 {
                     var product = await repo.Save(request.Name);
                     if (product == null)
@@ -83,7 +84,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new ProductsSQLiteRepository())
+                using (var repo = ProductsRepositoryFactory.Create())
                 {
                     var product = await repo.Save(request.Name, id);
                     if (product == null)
@@ -110,7 +111,7 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = new ProductsSQLiteRepository())
+                using (var repo = ProductsRepositoryFactory.Create())
                 {
                     bool removed = await repo.Remove(id);
                     if (removed)
