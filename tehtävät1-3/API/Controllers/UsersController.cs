@@ -91,34 +91,34 @@ namespace API.Controllers
             }
         }
 
-        [HttpPost(Name = "AddUser")]
-        public async Task<ActionResult<AppUser>> AddNewUser(AddUserRequest request)
-        {
-            try
-            {
-                using (var repo = UsersRepositoryFactory.Create())
-                {
-                    var user = await repo.Save(
-                        request.FirstName,
-                        request.LastName,
-                        request.Username
-                    );
-                    if (user == null)
-                    {
-                        return Problem(
-                            $"error creating user",
-                            statusCode: StatusCodes.Status500InternalServerError
-                        );
-                    }
-
-                    return Ok(user);
-                }
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-            }
-        }
+        //        [HttpPost(Name = "AddUser")]
+        //        public async Task<ActionResult<AppUser>> AddNewUser(AddUserRequest request)
+        //        {
+        //            try
+        //            {
+        //                using (var repo = UsersRepositoryFactory.Create())
+        //                {
+        //                    var user = await repo.Save(
+        //                        request.FirstName,
+        //                        request.LastName,
+        //                        request.Username
+        //                    );
+        //                    if (user == null)
+        //                    {
+        //                        return Problem(
+        //                            $"error creating user",
+        //                            statusCode: StatusCodes.Status500InternalServerError
+        //                        );
+        //                    }
+        //
+        //                    return Ok(user);
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+        //            }
+        //        }
 
         [HttpPatch("{id}", Name = "UpdateUserById")]
         public async Task<ActionResult<AppUser>> UpdateUser(long id, AddUserRequest request)

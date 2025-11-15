@@ -1,15 +1,12 @@
-using Microsoft.Data.Sqlite;
-
-namespace API.Models
+namespace API.DTOs
 {
-    public class AppUser
+    public class RegisterRes
     {
-        public long? Id { get; set; } = null;
+        public required long Id { get; set; }
 
         public required string Firstname { get; set; }
 
         public required string Lastname { get; set; }
         public required string Username { get; set; }
-        public required string Password { get; set; }
     }
 }

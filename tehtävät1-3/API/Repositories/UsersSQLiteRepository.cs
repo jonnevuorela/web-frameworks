@@ -28,7 +28,7 @@ namespace API.Repositories
 
         public UsersSQLiteRepository()
         {
-            _connection = new SqliteConnection("Data Source=tuntiharjoitus1.db");
+            _connection = new SqliteConnection("Data Source=tuntiharjoitus2.db");
             _connection.Open();
         }
 
@@ -68,6 +68,7 @@ namespace API.Repositories
                         Firstname = reader.GetString(1),
                         Lastname = reader.GetString(2),
                         Username = reader.GetString(3),
+                        Password = reader.GetString(4),
                     }
                 );
             }
@@ -105,22 +106,29 @@ namespace API.Repositories
                 Firstname = reader.GetString(1),
                 Lastname = reader.GetString(2),
                 Username = reader.GetString(3),
+                Password = reader.GetString(4),
             };
 
             return user;
         }
 
-        private async Task<AppUser?> Add(string firstname, string lastname, string username)
+        private async Task<AppUser?> Add(
+            string firstname,
+            string lastname,
+            string username,
+            string password
+        )
         {
             var insertCommand = _connection.CreateCommand();
             insertCommand.CommandText =
                 @"
-                INSERT INTO users(first_name, last_name, username)
-                VALUES(@firstName, @lastName, @username);
+                INSERT INTO users(first_name, last_name, username, password)
+                VALUES(@firstName, @lastName, @username, @password);
                 SELECT last_insert_rowid();";
             insertCommand.Parameters.AddWithValue("@firstName", firstname);
             insertCommand.Parameters.AddWithValue("@lastName", lastname);
             insertCommand.Parameters.AddWithValue("@username", username);
+            insertCommand.Parameters.AddWithValue("@password", password);
 
             var newId = await insertCommand.ExecuteScalarAsync();
             if (newId == null)
@@ -135,6 +143,7 @@ namespace API.Repositories
                 Firstname = firstname,
                 Lastname = lastname,
                 Username = username,
+                Password = password,
                 Id = id,
             };
         }
@@ -194,13 +203,14 @@ namespace API.Repositories
             string firstname,
             string lastname,
             string username,
+            string? password,
             long? id = null
         )
         {
             AppUser? user;
-            if (id == null)
+            if (id == null && password != null)
             {
-                user = await Add(firstname, lastname, username);
+                user = await Add(firstname, lastname, username, password);
             }
             else
             {
@@ -222,6 +232,16 @@ namespace API.Repositories
             int rowsAffected = await command.ExecuteNonQueryAsync();
 
             return rowsAffected == 1;
+        }
+
+        public Task<AppUser?> Save(
+            string firstname,
+            string lastname,
+            string username,
+            long? id = null
+        )
+        {
+            throw new NotImplementedException();
         }
     }
 }
