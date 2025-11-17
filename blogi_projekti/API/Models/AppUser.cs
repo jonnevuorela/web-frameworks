@@ -17,12 +17,11 @@ namespace API.Models
         public required string UserName { get; set; }
         public required string Role { get; set; }
 
-        // näiden pitää olla byte[]-tietotyyppiä
         public required byte[] PasswordSalt { get; set; }
         public required byte[] HashedPassword { get; set; }
 
-        // tämä on uusi
-        // tämä kertoo, että kyseessä blogs<->users-taulujen välillä on 1:n-relaatio
         public ICollection<Blog> Blogs { get; set; } = new List<Blog>();
+
+        public int Xp { get; set; }
     }
 }

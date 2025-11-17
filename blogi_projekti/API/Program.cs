@@ -61,6 +61,8 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddAuthorization(option =>
 {
     option.AddPolicy("RequireAdminRole", policy => policy.RequireRole("admin"));
+
+    option.AddPolicy("Require1000Xp", policy => policy.Requirements.Add(new XpRequirement(1000)));
 });
 
 var app = builder.Build();

@@ -110,5 +110,16 @@ namespace API.Services
 
             return user;
         }
+
+        public async Task<AppUser> GetAccount(int id)
+        {
+            var user = await _repository.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+            {
+                throw new NotFoundException("user not found");
+            }
+
+            return user;
+        }
     }
 }
