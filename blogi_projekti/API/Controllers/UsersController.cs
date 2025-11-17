@@ -14,6 +14,22 @@ namespace API.Controllers
     // Voimme injektoida IMapper-tyyppisenä _mapperin mihin tahansa controlleriin
     public class UsersController(IUserService _userService, IMapper _mapper) : ControllerBase
     {
+        [HttpGet("account")]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> GetAccount()
+        {
+            var idClaim = User.Claims.First(c => c.Type == "sub");
+            var id = int.Parse(idClaim.Value);
+
+            var user = await _userService.GetAccount(id);
+            if (user == null)
+            {
+                return Forbid();
+            }
+
+            return Ok(_mapper.Map<UserDto>(user));
+        }
+
         [HttpGet]
         [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
@@ -21,6 +37,28 @@ namespace API.Controllers
             var users = await _userService.GetAll();
 
             return Ok(_mapper.Map<IEnumerable<UserDto>>(users));
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginRes>> Login([FromBody] LoginReq request)
+        {
+            try
+            {
+                var token = await _userService.Login(request.UserName, request.Password);
+                return Ok(new LoginRes { Token = token });
+            }
+            catch (NotFoundException)
+            {
+                return Unauthorized("invalid username or password");
+            }
+            catch (Exception e)
+            {
+                return Problem(
+                    title: "Login failed",
+                    detail: e.Message,
+                    statusCode: StatusCodes.Status500InternalServerError
+                );
+            }
         }
 
         [HttpPost("register")]

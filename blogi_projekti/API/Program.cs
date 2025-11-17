@@ -1,9 +1,11 @@
 using System.Text;
 using API.Data;
 using API.Interfaces;
+using API.Policies.Handlers.API.Policies.Handlers;
 using API.Services;
 using API.Tools;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -56,6 +58,8 @@ builder.Services.AddDbContext<DataContext>(opt =>
 builder.Services.AddScoped<ITokenTool, SymmetricTokenTool>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
+
+builder.Services.AddScoped<IAuthorizationHandler, XpAuthorizationHandler>();
 
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddAuthorization(option =>
