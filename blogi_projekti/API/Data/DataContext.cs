@@ -12,4 +12,6 @@ public class DataContext(DbContextOptions options) : DbContext(options)
 
     // modeleista tehdään dbsetit
     public DbSet<AppUser> Users { get; set; }
+
+    public DbSet<Blog> Blogs { get; set; }
 }
