@@ -25,7 +25,8 @@ builder.Services.AddScoped<SqliteConnection>(provider =>
     connection.Open();
     return connection;
 });
-
+builder.Services.AddScoped<IProductsRepo, ProductsSQLiteRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAuthRepo, AuthSQLiteRepository>();
 builder.Services.AddScoped<ILogRepo, LogSQLiteRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using API.DTOs;
+using API.Dtos;
 using API.Interfaces;
 using API.Models;
 using Microsoft.Data.Sqlite;

@@ -1,5 +1,6 @@
 using API.Dtos;
 using API.Factories;
+using API.Interfaces;
 using API.Models;
 using API.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -8,18 +9,20 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProductsController : ControllerBase
+    public class ProductsController(IProductService _productService) : ControllerBase
     {
         [HttpGet(Name = "GetAllProducts")]
-        public async Task<ActionResult<IEnumerable<AppProduct>>> GetAllProducts()
+        public async Task<ActionResult<IEnumerable<ProductRes>>> GetAllProducts()
         {
             try
             {
-                using (var repo = ProductsRepositoryFactory.Create())
+                var res = await _productService.FetchAll();
+                if (res == null)
                 {
-                    var products = await repo.GetAll();
-                    return Ok(products);
+                    return Problem($"error fetching all products");
                 }
+
+                return Ok(res);
             }
             catch (Exception e)
             {
@@ -28,19 +31,16 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}", Name = "GetProductById")]
-        public async Task<ActionResult<AppProduct>> GetProductById(long id)
+        public async Task<ActionResult<ProductRes>> GetProductById(long id)
         {
             try
             {
-                using (var repo = ProductsRepositoryFactory.Create())
+                var res = await _productService.Fetch(id);
+                if (res == null)
                 {
-                    var product = await repo.GetById(id);
-                    if (product == null)
-                    {
-                        return NotFound("Product not found");
-                    }
-                    return Ok(product);
+                    return NotFound("Product not found");
                 }
+                return Ok(res);
             }
             catch (Exception ex)
             {
@@ -52,23 +52,20 @@ namespace API.Controllers
         }
 
         [HttpPost(Name = "AddProduct")]
-        public async Task<ActionResult<AppProduct>> AddNewProduct(AddProductRequest request)
+        public async Task<ActionResult<ProductRes>> AddNewProduct(ProductReq req)
         {
             try
             {
-                using (var repo = ProductsRepositoryFactory.Create())
+                var res = await _productService.Add(req);
+                if (res == null)
                 {
-                    var product = await repo.Save(request.Name);
-                    if (product == null)
-                    {
-                        return Problem(
-                            $"error creating product",
-                            statusCode: StatusCodes.Status500InternalServerError
-                        );
-                    }
-
-                    return Ok(product);
+                    return Problem(
+                        $"error creating product",
+                        statusCode: StatusCodes.Status500InternalServerError
+                    );
                 }
+
+                return Ok(res);
             }
             catch (Exception ex)
             {
@@ -77,25 +74,19 @@ namespace API.Controllers
         }
 
         [HttpPatch("{id}", Name = "UpdateProductById")]
-        public async Task<ActionResult<AppProduct>> UpdateProduct(
-            long id,
-            AddProductRequest request
-        )
+        public async Task<ActionResult<ProductRes>> UpdateProduct(long id, ProductReq req)
         {
             try
             {
-                using (var repo = ProductsRepositoryFactory.Create())
+                var res = await _productService.Edit(id, req);
+                if (res == null)
                 {
-                    var product = await repo.Save(request.Name, id);
-                    if (product == null)
-                    {
-                        return Problem(
-                            $"Error updating user",
-                            statusCode: StatusCodes.Status500InternalServerError
-                        );
-                    }
-                    return product;
+                    return Problem(
+                        $"Error updating user",
+                        statusCode: StatusCodes.Status500InternalServerError
+                    );
                 }
+                return Ok(res);
             }
             catch (Exception ex)
             {
@@ -111,15 +102,12 @@ namespace API.Controllers
         {
             try
             {
-                using (var repo = ProductsRepositoryFactory.Create())
+                bool removed = await _productService.Remove(id);
+                if (removed)
                 {
-                    bool removed = await repo.Remove(id);
-                    if (removed)
-                    {
-                        return NoContent();
-                    }
-                    return NotFound("product not found");
+                    return NoContent();
                 }
+                return NotFound("product not found");
             }
             catch (Exception ex)
             {

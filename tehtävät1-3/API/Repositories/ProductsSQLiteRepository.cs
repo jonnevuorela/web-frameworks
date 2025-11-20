@@ -1,10 +1,11 @@
+using API.Dtos;
 using API.Interfaces;
 using API.Models;
 using Microsoft.Data.Sqlite;
 
 namespace API.Repositories
 {
-    public class ProductsSQLiteRepository : IProductsRepository
+    public class ProductsSQLiteRepository : IProductsRepo
     {
         private SqliteConnection _connection;
 
@@ -45,7 +46,6 @@ namespace API.Repositories
         public async Task<AppProduct?> GetById(long id)
         {
             AppProduct? product;
-
             var command = _connection.CreateCommand();
             command.CommandText = $"SELECT * FROM products WHERE id = @id";
             command.Parameters.AddWithValue("@id", id);
@@ -60,6 +60,32 @@ namespace API.Repositories
             await reader.ReadAsync();
 
             product = new AppProduct { Id = reader.GetInt64(0), Name = reader.GetString(1) };
+
+            return product;
+        }
+
+        public async Task<bool> Remove(long id)
+        {
+            var command = _connection.CreateCommand();
+            command.CommandText = "DELETE FROM products WHERE id = @id";
+            command.Parameters.AddWithValue("@id", id);
+
+            var rowsAffected = await command.ExecuteNonQueryAsync();
+
+            return rowsAffected == 1;
+        }
+
+        public async Task<AppProduct?> Save(string name, long? id)
+        {
+            AppProduct? product;
+            if (id != null)
+            {
+                product = await Update(name, id.Value);
+            }
+            else
+            {
+                product = await Add(name);
+            }
 
             return product;
         }
@@ -82,58 +108,49 @@ namespace API.Repositories
             return new AppProduct { Name = name, Id = id };
         }
 
-        private async Task<AppProduct?> Update(string name, long? id)
+        private async Task<AppProduct?> Update(string name, long id)
         {
-            if (id == null)
-            {
-                return null;
-            }
-            var product = await GetById((long)id);
+            var product = await GetById(id);
             if (product == null)
             {
                 return null;
             }
-            var updateCommand = _connection.CreateCommand();
-            updateCommand.CommandText = @"UPDATE products SET name = @newName WHERE id = @id;";
-
-            updateCommand.Parameters.AddWithValue("@newName", name);
-            updateCommand.Parameters.AddWithValue("@id", id);
-
-            int rowsAffected = await updateCommand.ExecuteNonQueryAsync();
-
-            product.Name = name;
-            if (rowsAffected == 1)
+            else
             {
-                return product;
+                var updateCommand = _connection.CreateCommand();
+                updateCommand.CommandText = @"UPDATE products SET name = @newName WHERE id = @id;";
+
+                updateCommand.Parameters.AddWithValue("@newName", name);
+                updateCommand.Parameters.AddWithValue("@id", id);
+
+                int rowsAffected = await updateCommand.ExecuteNonQueryAsync();
+
+                product.Name = name;
+                if (rowsAffected == 1)
+                {
+                    return product;
+                }
             }
 
             return null;
         }
 
-        public async Task<AppProduct?> Save(string name, long? id = null)
+        private async Task<long?> GetIdByName(string name)
         {
-            AppProduct? product;
-            if (id == null)
+            var command = _connection.CreateCommand();
+            command.CommandText = $"SELECT * FROM products WHERE name = @name";
+            command.Parameters.AddWithValue("@name", name);
+
+            using var reader = await command.ExecuteReaderAsync();
+            if (!reader.HasRows)
             {
-                product = await Add(name);
+                return null;
             }
             else
             {
-                product = await Update(name, id);
+                await reader.ReadAsync();
+                return reader.GetInt64(0);
             }
-
-            return product;
-        }
-
-        public async Task<bool> Remove(long id)
-        {
-            var command = _connection.CreateCommand();
-            command.CommandText = "DELETE FROM products WHERE id = @id";
-            command.Parameters.AddWithValue("@id", id);
-
-            int rowsAffected = await command.ExecuteNonQueryAsync();
-
-            return rowsAffected == 1;
         }
     }
 }

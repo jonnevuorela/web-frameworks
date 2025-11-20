@@ -1,10 +1,10 @@
-using API.DTOs;
+using API.Dtos;
 
 namespace API.Interfaces
 {
     public interface IAuthService
     {
-        public Task<LoginRes> Login(LoginReq req);
-        public Task<RegisterRes> Register(RegisterReq req);
+        public Task<LoginRes?> Login(LoginReq req);
+        public Task<RegisterRes?> Register(RegisterReq req);
     }
 }

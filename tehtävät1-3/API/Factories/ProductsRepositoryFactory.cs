@@ -5,7 +5,7 @@ namespace API.Factories
 {
     public static class ProductsRepositoryFactory
     {
-        public static IProductsRepository Create()
+        public static IProductsRepo Create()
         {
             return new ProductsSQLiteRepository();
         }
