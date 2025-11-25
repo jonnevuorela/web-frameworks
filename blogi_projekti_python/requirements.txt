@@ -3,3 +3,6 @@ sqlalchemy
 
 passlib 
 argon2-cffi
+
+pyjwt[crypto]
+python-dotenv
