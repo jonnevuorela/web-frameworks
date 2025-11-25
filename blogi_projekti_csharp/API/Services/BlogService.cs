@@ -70,5 +70,17 @@ namespace API.Services
             await _repository.SaveChangesAsync();
             return blog;
         }
+
+        public async Task<Blog> Edit(int id, UpdateBlogReq requestData)
+        {
+            var blog = await GetById(id);
+
+            blog.Title = requestData.Title;
+            blog.Content = requestData.Content;
+
+            await _repository.SaveChangesAsync();
+
+            return blog;
+        }
     }
 }

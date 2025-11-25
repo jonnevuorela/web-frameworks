@@ -63,5 +63,19 @@ namespace API.Controllers
                 return Problem(title: "error creating blog post", detail: e.Message);
             }
         }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<BlogDto>> UpdateBlog(int id, UpdateBlogReq req)
+        {
+            try
+            {
+                var blog = await _blogService.Edit(id, req);
+                return Ok(_mapper.Map<BlogDto>(blog));
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "error updating blog", detail: e.Message);
+            }
+        }
     }
 }

@@ -11,5 +11,7 @@ namespace API.Interfaces
         Task<Blog> GetById(int id);
 
         Task<Blog> Create(CreateBlogReq requestData, int loggedInUser);
+
+        Task<Blog> Edit(int id, UpdateBlogReq requestData);
     }
 }
