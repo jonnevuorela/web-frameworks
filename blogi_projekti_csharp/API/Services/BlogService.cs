@@ -17,9 +17,9 @@ namespace API.Services
 
         public async Task<Blog> GetById(int id)
         {
-            // include luo INNER JOININ: SELECT * FROM Blogs INNER JOIN Users ON Usres.Id = Blogs.AppUserId WHERE Blogs.Id = ?
             var blogWithOwner = await _repository
                 .Blogs.Include(b => b.Owner)
+                .Include(b => b.Tags)
                 .FirstOrDefaultAsync(b => b.Id == id);
             if (blogWithOwner == null)
             {
@@ -31,15 +31,41 @@ namespace API.Services
 
         public async Task<Blog> Create(CreateBlogReq requestData, int loggedInUser)
         {
+            // Haetaan jo oo. tagit, jotka löytyvät Tags-taulusta
+
+            var existingTags = await _repository
+                .Tags.Where(tag => requestData.Tags.Contains(tag.TagText))
+                .ToListAsync();
+
+            // katsotaan, onko joukossa uusia tageja, joita ei ole vielä tallennettu tietokantaan
+
+            var existingTagTexts = existingTags.Select(tag => tag.TagText).ToList();
+            var newTagTexts = requestData.Tags.Except(existingTagTexts).ToList();
+
+            var newTagEntities = new List<Tag>();
+
+            // lisätään uudet tagit listaan
+            foreach (var text in newTagTexts)
+            {
+                newTagEntities.Add(new Tag { TagText = text });
+            }
+            // addataan kaikki uudet tagit kerralla
+            await _repository.Tags.AddRangeAsync(newTagEntities);
+
+            // yhdistetään uudet ja vanhat tägit yhteen listaan
+            var allTags = existingTags.Union(newTagEntities).ToList();
+
             var blog = new Blog
             {
                 Title = requestData.Title,
                 Content = requestData.Content,
                 AppUserId = loggedInUser,
+                // lisätään tägit blogiin
+                Tags = allTags,
             };
 
             // EfCoressa kaikki tietokantaan lisättävät rivit pitää ensin lisätä commitoitavien listaan käyttäen addia
-            await _repository.AddAsync(blog);
+            await _repository.Blogs.AddAsync(blog);
             // kun rivit on ensin lisätty listaan, muutokset voidaan tallentaa
             await _repository.SaveChangesAsync();
             return blog;
