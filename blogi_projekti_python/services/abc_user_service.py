@@ -19,3 +19,7 @@ class ABCUserService(abc.ABC):
     @abc.abstractmethod
     def get_all(self) -> list[models.Users]:
         raise NotImplementedError()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_user_by_access_token(self, access_token: str) -> models.Users | None:
+        raise NotImplementedError()  # pragma: no cover

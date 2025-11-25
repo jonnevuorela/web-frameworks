@@ -54,3 +54,11 @@ class UserService(ABCUserService):
         # all()-metodin kutsu suorittaa sen
         users: list[models.Users] = users_query.all()
         return users
+
+    def get_user_by_id(self, _id):
+        return self._repository.query(models.Users).filter_by(Id=_id).first()
+
+    def get_user_by_access_token(self, access_token: str) -> models.Users | None:
+        decoded_payload = self._token_tool.decode_token(access_token)
+        user = self.get_user_by_id(decoded_payload["sub"])
+        return user

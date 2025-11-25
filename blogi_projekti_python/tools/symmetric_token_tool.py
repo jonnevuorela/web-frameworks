@@ -28,3 +28,12 @@ class SymmetricTokenTool(ABCTokenTool):
             raise NotFoundException("token not found")
 
         return jwt.encode(jwt_payload, _token_key, algorithm="HS512")
+
+    def decode_token(self, token: str) -> dict | None:
+
+        _token_key = os.getenv("TOKEN_KEY", None)
+        if _token_key is None:
+            raise NotFoundException("token not found")
+
+        decoded_payload = jwt.decode(token, _token_key, algorithms="HS512")
+        return decoded_payload
