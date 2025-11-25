@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from controllers import users_controller
 
 app = FastAPI()
