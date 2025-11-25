@@ -1,6 +1,9 @@
+from typing import List
+
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_snake
 
+from dtos.tags import TagDto
 from dtos.users import UserDto
 
 
@@ -19,7 +22,10 @@ class BlogDto(BaseModel):
 
     Users_: UserDto = Field(alias="owner")
 
+    Tags_: List[TagDto] = Field(alias="tags")
+
 
 class CreateBlogReq(BaseModel):
     title: str
     content: str
+    tags: List[str]

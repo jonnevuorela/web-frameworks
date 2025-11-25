@@ -23,6 +23,17 @@ class Users(Base):
     )
 
 
+class Tags(Base):
+    __tablename__ = "Tags"
+
+    Id = mapped_column(Integer, primary_key=True)
+    TagText = mapped_column(Text, nullable=False)
+
+    Blogs: Mapped[List["Blogs"]] = relationship(
+        "Blogs", secondary="BlogTag", back_populates="Tags_"
+    )
+
+
 class Blogs(Base):
     __tablename__ = "Blogs"
     __table_args__ = (Index("IX_Blogs_AppUserId", "AppUserId"),)
@@ -35,3 +46,6 @@ class Blogs(Base):
     )
 
     Users_: Mapped["Users"] = relationship("Users", back_populates="Blogs")
+    Tags_: Mapped[List["Tags"]] = relationship(
+        "Tags", secondary="BlogTag", back_populates="Blogs"
+    )

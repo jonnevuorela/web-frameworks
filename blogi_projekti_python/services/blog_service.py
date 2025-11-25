@@ -22,9 +22,33 @@ class BlogService(ABCBlogService):
     def create(
         self, req: dtos.blogs.CreateBlogReq, logged_in_user_id: int
     ) -> models.Blogs:
-        blog = models.Blogs(
-            Title=req.title, Content=req.content, AppUserId=logged_in_user_id
+
+        existing_tags_qry: Query = self._repository.query(models.Tags).filter(
+            models.Tags.TagText.in_(req.tags)
         )
+        existing_tags: List[models.Tags] = existing_tags_qry.all()
+        existing_tag_texts = [tag.TagText for tag in existing_tags]
+        new_tag_texts = list(set(req.tags) - set(existing_tag_texts))
+
+        new_tags: List[models.Tags] = []
+        for text in new_tag_texts:
+            _new_tag = models.Tags(TagText=text)
+
+            new_tags.append(_new_tag)
+
+        self._repository.add_all(new_tags)
+        self._repository.commit()
+
+        all_tags = existing_tags + new_tags
+
+        blog = models.Blogs(
+            Title=req.title,
+            Content=req.content,
+            AppUserId=logged_in_user_id,
+            Tags_=all_tags,
+        )
+        self._repository.add(blog)
+        self._repository.commit()
         self._repository.add(blog)
         self._repository.commit()
         return blog
