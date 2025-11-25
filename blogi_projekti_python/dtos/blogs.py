@@ -18,3 +18,8 @@ class BlogDto(BaseModel):
     Content: str
 
     Users_: UserDto = Field(alias="owner")
+
+
+class CreateBlogReq(BaseModel):
+    title: str
+    content: str

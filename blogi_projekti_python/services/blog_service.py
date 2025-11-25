@@ -2,6 +2,7 @@ from typing import List
 
 from sqlalchemy.orm import Query, Session
 
+import dtos.blogs
 import models
 from services.abc_blog_service import ABCBlogService
 
@@ -17,3 +18,13 @@ class BlogService(ABCBlogService):
 
     def get_by_id(self, _id: int) -> List[models.Blogs]:
         return self._repository.query(models.Blogs).filter_by(Id=_id).first()
+
+    def create(
+        self, req: dtos.blogs.CreateBlogReq, logged_in_user_id: int
+    ) -> models.Blogs:
+        blog = models.Blogs(
+            Title=req.title, Content=req.content, AppUserId=logged_in_user_id
+        )
+        self._repository.add(blog)
+        self._repository.commit()
+        return blog

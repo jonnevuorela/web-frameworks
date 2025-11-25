@@ -3,6 +3,8 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException
 
 import dtos.blogs
+import models
+from dependencies import get_logged_in_user
 from factories.services import blog_service_factory
 from services.abc_blog_service import ABCBlogService
 
@@ -28,6 +30,19 @@ async def get_blog_by_id(blog_id: int, _blog_service: BlogServ) -> dtos.blogs.Bl
         blog = _blog_service.get_by_id(blog_id)
         if blog is None:
             raise HTTPException(status_code=404, detail="blog not found")
+        return blog
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=str(error))
+
+
+@router.post("/")
+async def create_blog(
+    req: dtos.blogs.CreateBlogReq,
+    _blog_service: BlogServ,
+    logged_in_user: models.Users = Depends(get_logged_in_user),
+) -> dtos.blogs.BlogDto:
+    try:
+        blog = _blog_service.create(req, logged_in_user.Id)
         return blog
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error))
