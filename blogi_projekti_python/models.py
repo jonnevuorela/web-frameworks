@@ -1,10 +1,38 @@
 from typing import List
 
-from sqlalchemy import ForeignKey, Index, Integer, LargeBinary, Text, text
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Index,
+    Integer,
+    LargeBinary,
+    Table,
+    Text,
+    text,
+)
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
-from sqlalchemy.orm.base import Mapped
 
 Base = declarative_base()
+
+BlogTag = Table(
+    "BlogTag",
+    Base.metadata,
+    Column(
+        "BlogId",
+        Integer,
+        ForeignKey("Blogs.Id", ondelete="CASCADE"),
+        primary_key=True,
+        nullable=False,
+    ),
+    Column(
+        "TagId",
+        Integer,
+        ForeignKey("Tags.Id", ondelete="CASCADE"),
+        primary_key=True,
+        nullable=False,
+    ),
+    Index("IX_BlogTag_TagId", "TagId"),
+)
 
 
 class Users(Base):
@@ -30,7 +58,7 @@ class Tags(Base):
     TagText = mapped_column(Text, nullable=False)
 
     Blogs: Mapped[List["Blogs"]] = relationship(
-        "Blogs", secondary="BlogTag", back_populates="Tags_"
+        "Blogs", secondary=BlogTag, back_populates="Tags_"
     )
 
 
@@ -47,5 +75,5 @@ class Blogs(Base):
 
     Users_: Mapped["Users"] = relationship("Users", back_populates="Blogs")
     Tags_: Mapped[List["Tags"]] = relationship(
-        "Tags", secondary="BlogTag", back_populates="Blogs"
+        "Tags", secondary=BlogTag, back_populates="Blogs"
     )

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 import dtos.blogs
 import models
+from custom_exceptions.not_found_exception import NotFoundException
 from dependencies import get_logged_in_user
 from factories.services import blog_service_factory
 from services.abc_blog_service import ABCBlogService
@@ -44,5 +45,17 @@ async def create_blog(
     try:
         blog = _blog_service.create(req, logged_in_user.Id)
         return blog
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=str(error))
+
+
+@router.delete("/{blog_id}")
+async def remove_blog(blog_id: int, _blog_service: BlogServ):
+    try:
+        _blog_service.remove(blog_id)
+        return ""
+
+    except NotFoundException as error:
+        raise HTTPException(status_code=404, detail=str(error))
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error))

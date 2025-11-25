@@ -4,6 +4,7 @@ from sqlalchemy.orm import Query, Session
 
 import dtos.blogs
 import models
+from custom_exceptions.not_found_exception import NotFoundException
 from services.abc_blog_service import ABCBlogService
 
 
@@ -52,3 +53,10 @@ class BlogService(ABCBlogService):
         self._repository.add(blog)
         self._repository.commit()
         return blog
+
+    def remove(self, _id: int):
+        blog = self.get_by_id(_id)
+        if blog is None:
+            raise NotFoundException("blog not found")
+        self._repository.delete(blog)
+        self._repository.commit()

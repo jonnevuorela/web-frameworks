@@ -15,3 +15,7 @@ class ABCBlogService(abc.ABC):
         self, req: dtos.blogs.CreateBlogReq, logged_in_user_id: int
     ) -> models.Blogs:
         raise NotImplementedError()  # pragma: no cover
+
+    @abc.abstractmethod
+    def remove(self, _id: int):
+        raise NotImplementedError()  # pragma: no cover
