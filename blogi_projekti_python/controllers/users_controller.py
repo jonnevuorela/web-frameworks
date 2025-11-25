@@ -6,7 +6,7 @@ import dtos.login
 import dtos.register
 import dtos.users
 from custom_exceptions.not_found_exception import NotFoundException
-from dependencies import get_logged_in_user
+from dependencies import require_admin
 from factories.services import user_service_factory
 from services.abc_user_service import ABCUserService
 
@@ -40,12 +40,10 @@ async def login(
         raise HTTPException(status_code=500, detail=str(error))
 
 
-@router.get("/", dependencies=[Depends(get_logged_in_user)])
+@router.get("/", dependencies=[Depends(require_admin)])
 async def get_all_users(_user_service: UserServ) -> list[dtos.users.UserDto]:
     try:
         users = _user_service.get_all()
-        # vaikka get_all palauttaa listan Model-luokan instansseja, pelkkä return riittää, ja rajapinnassa näkyy vain UserDto:ssa olevat muuttujat
-        # ei siis kaikkia Users-modelluokan sisältämiä tietoja
 
         # return [dtos.users.UserDto.model_validate(user) for user in users]
         return users
