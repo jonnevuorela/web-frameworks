@@ -3,6 +3,7 @@ import traceback
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+import models
 from custom_exceptions.forbidden_exception import ForbiddenException
 from factories.services import user_service_factory
 from services.abc_user_service import ABCUserService
@@ -37,3 +38,11 @@ def require_admin(
 
     except Exception:
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+def require_xp(required_xp: int):
+    def check_xp(logged_in_user: models.Users = Depends(get_logged_in_user)):
+        if logged_in_user.Xp < required_xp:
+            raise HTTPException(status_code=403, detail="xp too low")
+
+    return check_xp

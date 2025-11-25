@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -6,7 +6,7 @@ import dtos.login
 import dtos.register
 import dtos.users
 from custom_exceptions.not_found_exception import NotFoundException
-from dependencies import require_admin
+from dependencies import require_admin, require_xp
 from factories.services import user_service_factory
 from services.abc_user_service import ABCUserService
 
@@ -41,7 +41,7 @@ async def login(
 
 
 @router.get("/", dependencies=[Depends(require_admin)])
-async def get_all_users(_user_service: UserServ) -> list[dtos.users.UserDto]:
+async def get_all_users(_user_service: UserServ) -> List[dtos.users.UserDto]:
     try:
         users = _user_service.get_all()
 
@@ -49,3 +49,8 @@ async def get_all_users(_user_service: UserServ) -> list[dtos.users.UserDto]:
         return users
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error))
+
+
+@router.get("/account/rewards", dependencies=[Depends(require_xp(1000))])
+async def get_user_rewards():
+    return "hello"
