@@ -1,6 +1,7 @@
 using API.CustomExceptions;
 using API.Dtos;
 using API.Interfaces;
+using API.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,14 +54,8 @@ namespace API.Controllers
         {
             try
             {
-                // koska käytämme AuthorizeAttribuuttia routehandlerin yläpuolella, sisäänkirjautuneen
-                // käyttäjän jwt:hen tallennetut tiedot löytyvät User.Claimsista automaattisesti
-
-                // koska sisäänkirjautumisen yhteydessä
-                // tallennamme subiin käyttäjän id:n, saamme id:n jwt:stä näin
-                var idClaim = User.Claims.First(c => c.Type == "sub");
-                var id = int.Parse(idClaim.Value);
-                var blog = await _blogService.Create(req, id);
+                var loggedInUser = HttpContext.Items["loggedInUser"] as AppUser;
+                var blog = await _blogService.Create(req, loggedInUser!.Id);
                 return Ok(_mapper.Map<BlogDto>(blog));
             }
             catch (Exception e)

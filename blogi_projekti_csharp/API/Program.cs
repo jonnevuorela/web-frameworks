@@ -1,6 +1,7 @@
 using System.Text;
 using API.Data;
 using API.Interfaces;
+using API.Middlewares;
 using API.Policies.Handlers.API.Policies.Handlers;
 using API.Services;
 using API.Tools;
@@ -60,6 +61,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
 
 builder.Services.AddScoped<IAuthorizationHandler, XpAuthorizationHandler>();
+builder.Services.AddScoped<RequireLoggedInUserMiddleware>();
 
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddAuthorization(option =>
@@ -85,5 +87,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseMiddleware<RequireLoggedInUserMiddleware>();
 
 app.Run();

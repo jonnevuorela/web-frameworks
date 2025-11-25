@@ -3,6 +3,7 @@
 using API.CustomExceptions;
 using API.Dtos;
 using API.Interfaces;
+using API.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,16 +19,9 @@ namespace API.Controllers
         [Authorize]
         public async Task<ActionResult<UserDto>> GetAccount()
         {
-            var idClaim = User.Claims.First(c => c.Type == "sub");
-            var id = int.Parse(idClaim.Value);
+            var loggedInUser = HttpContext.Items["loggedInUser"] as AppUser;
 
-            var user = await _userService.GetAccount(id);
-            if (user == null)
-            {
-                return Forbid();
-            }
-
-            return Ok(_mapper.Map<UserDto>(user));
+            return await Task.FromResult(Ok(_mapper.Map<UserDto>(loggedInUser)));
         }
 
         [HttpGet]
