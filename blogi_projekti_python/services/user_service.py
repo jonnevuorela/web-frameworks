@@ -1,6 +1,6 @@
 import argon2
 import dotenv
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Query, Session
 
 import models
 from custom_exceptions.not_found_exception import NotFoundException
@@ -47,3 +47,10 @@ class UserService(ABCUserService):
             raise NotFoundException("user not found")
 
         return self._token_tool.create_token(user)
+
+    def get_all(self) -> list[models.Users]:
+        # tämä rakentaa queryn
+        users_query: Query = self._repository.query(models.Users)
+        # all()-metodin kutsu suorittaa sen
+        users: list[models.Users] = users_query.all()
+        return users
