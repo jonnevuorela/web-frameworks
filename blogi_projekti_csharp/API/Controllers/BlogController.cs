@@ -77,5 +77,19 @@ namespace API.Controllers
                 return Problem(title: "error updating blog", detail: e.Message);
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> RemoveBlog(int id)
+        {
+            try
+            {
+                await _blogService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return Problem(title: "error removing blog", detail: e.Message);
+            }
+        }
     }
 }

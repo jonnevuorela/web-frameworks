@@ -82,5 +82,12 @@ namespace API.Services
 
             return blog;
         }
+
+        public async Task Delete(int id)
+        {
+            var blog = await GetById(id);
+            _repository.Blogs.Remove(blog);
+            await _repository.SaveChangesAsync();
+        }
     }
 }
