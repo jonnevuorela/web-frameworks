@@ -5,11 +5,8 @@ using System.Threading.Tasks;
 
 namespace API.Dtos
 {
-    public class TagDto
+    public class UpdateTagReq
     {
-        public int Id { get; set; }
         public required string TagText { get; set; }
-
-        public List<BlogBriefDto> Blogs { get; set; } = [];
     }
 }

@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace API.Dtos
 {
-    public class TagDto
+    // Blogeja hakiessa blogeihin liitetään tämä TagDto:n sijasta,
+    // jotta ei palauteta jälleen tagiin liitettyjä blogeja turhaan.
+    public class TagBriefDto
     {
         public int Id { get; set; }
         public required string TagText { get; set; }
-
-        public List<BlogBriefDto> Blogs { get; set; } = [];
     }
 }

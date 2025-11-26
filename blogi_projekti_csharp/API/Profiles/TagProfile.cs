@@ -13,6 +13,7 @@ namespace API.Profiles
         public TagProfile()
         {
             CreateMap<Tag, TagDto>();
+            CreateMap<Tag, TagBriefDto>();
         }
     }
 }

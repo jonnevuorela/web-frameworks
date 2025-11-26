@@ -9,6 +9,7 @@ namespace API.Profiles
         public BlogProfile()
         {
             CreateMap<Blog, BlogDto>();
+            CreateMap<Blog, BlogBriefDto>();
         }
     }
 }

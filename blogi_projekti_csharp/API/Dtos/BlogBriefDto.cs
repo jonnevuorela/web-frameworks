@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace API.Dtos
 {
-    public class BlogDto
+    // Tageja hakiessa tageihin liitetään tämä kokonaisen BlogDto:n sijasta,
+    // jotta ei palauteta jälleen blogiin liitettyjä tageja ja aiheuteta ikilooppia.
+    public class BlogBriefDto
     {
         public int Id { get; set; }
         public required string Title { get; set; }
-        public required string Content { get; set; }
-
-        public required UserDto Owner { get; set; }
-
-        public List<TagBriefDto> Tags { get; set; } = [];
     }
 }
