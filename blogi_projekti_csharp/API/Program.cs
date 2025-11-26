@@ -59,6 +59,7 @@ builder.Services.AddDbContext<DataContext>(opt =>
 builder.Services.AddScoped<ITokenTool, SymmetricTokenTool>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 builder.Services.AddScoped<IAuthorizationHandler, XpAuthorizationHandler>();
 builder.Services.AddScoped<RequireLoggedInUserMiddleware>();
