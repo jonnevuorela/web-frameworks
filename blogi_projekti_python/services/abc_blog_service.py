@@ -11,6 +11,10 @@ class ABCBlogService(abc.ABC):
         raise NotImplementedError()  # pragma: no cover
 
     @abc.abstractmethod
+    def get_by_id(self, _id: int) -> models.Blogs:
+        raise NotImplementedError()  # pragma: no cover
+
+    @abc.abstractmethod
     def create(
         self, req: dtos.blogs.CreateBlogReq, logged_in_user_id: int
     ) -> models.Blogs:

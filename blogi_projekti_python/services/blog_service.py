@@ -14,11 +14,11 @@ class BlogService(ABCBlogService):
         self._repository = _repository
 
     def get_all(self) -> List[models.Blogs]:
-        query: Query = self._repository.query(models.Blogs)
+        query: Query[models.Blogs] = self._repository.query(models.Blogs)
         result = query.all()
         return result
 
-    def get_by_id(self, _id: int) -> List[models.Blogs]:
+    def get_by_id(self, _id: int) -> models.Blogs:
         return self._repository.query(models.Blogs).filter_by(Id=_id).first()
 
     def create(
@@ -26,9 +26,9 @@ class BlogService(ABCBlogService):
     ) -> models.Blogs:
 
         try:
-            existing_tags_qry: Query = self._repository.query(models.Tags).filter(
-                models.Tags.TagText.in_(req.tags)
-            )
+            existing_tags_qry: Query[models.Tags] = self._repository.query(
+                models.Tags
+            ).filter(models.Tags.TagText.in_(req.tags))
             existing_tags: List[models.Tags] = existing_tags_qry.all()
             existing_tag_texts = [tag.TagText for tag in existing_tags]
             new_tag_texts = list(set(req.tags) - set(existing_tag_texts))
@@ -49,7 +49,7 @@ class BlogService(ABCBlogService):
 
         try:
             category: models.Categorys
-            existing_category_qry: Query = self._repository.query(
+            existing_category_qry: Query[models.Categorys] = self._repository.query(
                 models.Categorys
             ).filter(models.Categorys.name == req.category)
             if (existing_category := existing_category_qry.first()) is not None:
