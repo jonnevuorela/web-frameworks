@@ -23,7 +23,7 @@ class Tags(Base):
     TagText = mapped_column(Text, nullable=False)
     Id = mapped_column(Integer, primary_key=True)
 
-    Blogs: Mapped["Blogs"] = relationship(
+    Blogs: Mapped[List["Blogs"]] = relationship(
         "Blogs", secondary="BlogTag", back_populates="Tags_"
     )
 
@@ -45,20 +45,6 @@ class Users(Base):
     Blogs: Mapped[List["Blogs"]] = relationship(
         "Blogs", uselist=True, back_populates="Users_"
     )
-
-
-class EFMigrationsHistory(Base):
-    __tablename__ = "__EFMigrationsHistory"
-
-    MigrationId = mapped_column(Text, primary_key=True)
-    ProductVersion = mapped_column(Text, nullable=False)
-
-
-class EFMigrationsLock(Base):
-    __tablename__ = "__EFMigrationsLock"
-
-    Id = mapped_column(Integer, primary_key=True)
-    Timestamp = mapped_column(Text, nullable=False)
 
 
 class Categorys(Base):
@@ -90,7 +76,8 @@ class Blogs(Base):
 
     Users_: Mapped["Users"] = relationship("Users", back_populates="Blogs")
     Categorys_: Mapped["Categorys"] = relationship("Categorys", back_populates="Blogs")
-    Tags_: Mapped["Tags"] = relationship(
+
+    Tags_: Mapped[List["Tags"]] = relationship(
         "Tags", secondary="BlogTag", back_populates="Blogs"
     )
 
