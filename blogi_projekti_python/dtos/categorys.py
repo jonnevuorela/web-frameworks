@@ -13,3 +13,7 @@ class CategoryDto(BaseModel):
     Id: int
     Name: str
     Owner: UserDto = Field(alias="owner")
+
+
+class CreateCategoryReq(BaseModel):
+    name: str
